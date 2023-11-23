@@ -4,21 +4,8 @@
 @inject HttpClient HttpClient
 @inject NavigationManager NavigationManager
 
-<div class="top-bar">
-    <a class="logo" href="">
-        <img src="img/logo.svg" />
-    </a>
+<TopBar/>
 
-    <a href="" class="nav-tab active">
-        <img src="img/pizza-slice.svg" />
-        <div>Get Pizza</div>
-    </a>
-
-    <a href="myorders" class="nav-tab">
-        <img src="img/bike.svg" />
-        <div>My Orders</div>
-    </a>
-</div>
 
 <div class="main">
     <div class="checkout-cols">
@@ -57,6 +44,6 @@
         var response = await HttpClient.PostAsJsonAsync($"{NavigationManager.BaseUri}orders", OrderState.Order);
         var newOrderId = await response.Content.ReadFromJsonAsync<int>();
         OrderState.ResetOrder();
-        NavigationManager.NavigateTo("/myorders");
+        NavigationManager.NavigateTo($"myorders/{newOrderId}");
     }
 }
