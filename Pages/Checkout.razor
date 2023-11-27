@@ -1,10 +1,8 @@
 @page "/checkout"
-@using BlazingPizza.Services
 @inject OrderState OrderState
 @inject HttpClient HttpClient
 @inject NavigationManager NavigationManager
 @implements IDisposable
-
 
 <div class="main">
     <EditForm EditContext=editContext OnValidSubmit=PlaceOrder>
@@ -34,29 +32,35 @@
 
 @code {
     Order Order => OrderState.Order;
+
     bool isError = true;
-    private EditContext editContext;
+    EditContext? editContext;
 
     protected override void OnInitialized()
     {
         editContext = new(Order.DeliveryAddress);
         editContext.OnFieldChanged += HandleFieldChanged;
     }
-    private void HandleFieldChanged(object sender, FieldChangedEventArgs e)
-    {
-        isError = !editContext.Validate();
-        StateHasChanged();
-    }
-    public void Dispose()
-    {
-        editContext.OnFieldChanged -= HandleFieldChanged;
-    }
 
     async Task PlaceOrder()
     {
-        var response = await HttpClient.PostAsJsonAsync($"{NavigationManager.BaseUri}orders", OrderState.Order);
+        var response = await HttpClient.PostAsJsonAsync(
+            $"{NavigationManager.BaseUri}orders", OrderState.Order);
         var newOrderId = await response.Content.ReadFromJsonAsync<int>();
+
         OrderState.ResetOrder();
         NavigationManager.NavigateTo($"myorders/{newOrderId}");
+    }
+
+    void HandleFieldChanged(object? sender, FieldChangedEventArgs e)
+    {
+        isError = editContext?.Validate() is false;
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        if (editContext is null) return;
+        editContext.OnFieldChanged -= HandleFieldChanged;
     }
 }
