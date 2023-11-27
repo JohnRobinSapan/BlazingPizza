@@ -1,6 +1,3 @@
-using BlazingPizza.Data;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 namespace BlazingPizza.Controllers;
 
 [Route("orders")]
@@ -35,8 +32,8 @@ public class OrdersController : Controller
         // new specials and toppings
         foreach (var pizza in order.Pizzas)
         {
-            pizza.SpecialId = pizza.Special.Id;
-            pizza.Special = null;
+            pizza.SpecialId = pizza.Special?.Id ?? 0;
+            pizza.Special = null!;
         }
 
         _db.Orders.Attach(order);
